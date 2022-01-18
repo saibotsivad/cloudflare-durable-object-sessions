@@ -1,0 +1,38 @@
+{
+  "name": "cloudflare-durable-object-sessions",
+  "version": "0.0.0",
+  "description": "Cloudflare Workers and Durable Objects as an approach to user and session management.",
+  "type": "module",
+  "module": "dist/index.js",
+  "unpkg": "dist/index.min.js",
+  "main": "dist/index.cjs",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "test": "uvu src",
+    "build": "bundt src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saibotsivad/cloudflare-durable-object-sessions.git"
+  },
+  "keywords": [
+    "{{TODO_KEYWORDS}}"
+  ],
+  "author": {
+    "name": "Tobias Davis",
+    "email": "tobias@davistobias.com",
+    "url": "https://davistobias.com"
+  },
+  "license": "SEE LICENSE IN LICENSE.md",
+  "bugs": {
+    "url": "https://github.com/saibotsivad/cloudflare-durable-object-sessions/issues"
+  },
+  "homepage": "https://github.com/saibotsivad/cloudflare-durable-object-sessions"
+}
