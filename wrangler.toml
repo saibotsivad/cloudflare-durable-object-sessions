@@ -1,0 +1,29 @@
+name = "cloudflare-do-sessions"
+type = "javascript"
+workers_dev = false
+routes = [
+  "https://sessions.davisresearchgroup.com/",
+  "https://sessions.davisresearchgroup.com/*"
+]
+compatibility_date = "2022-01-17"
+
+[build]
+command = "npm install && npm run build"
+
+[build.upload]
+# The "modules" upload format is required for all projects that export a Durable Objects class
+format = "modules"
+main = "./index.mjs"
+
+[durable_objects]
+bindings = [
+  { name = "USER", class_name = "User" }
+]
+
+[[migrations]]
+tag = "v1" # Should be unique for each entry
+new_classes = [ "Counter" ]
+
+[[migrations]]
+tag = "v2"
+renamed_classes = [{from = "Counter", to = "User" }]

@@ -3,27 +3,22 @@
   "version": "0.0.0",
   "description": "Cloudflare Workers and Durable Objects as an approach to user and session management.",
   "type": "module",
-  "module": "dist/index.js",
-  "unpkg": "dist/index.min.js",
-  "main": "dist/index.cjs",
-  "types": "index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./package.json": "./package.json"
-  },
+  "main": "dist/index.mjs",
   "scripts": {
-    "test": "uvu src",
-    "build": "bundt src/index.js"
+    "build": "rollup -c",
+    "deploy": "npm run build && wrangler publish",
+    "dev": "rollup -c -w",
+    "start": "miniflare build.js --debug --watch --port 3000 --kv DCC_SERMONS --kv-persist ./data/"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/saibotsivad/cloudflare-durable-object-sessions.git"
   },
   "keywords": [
-    "{{TODO_KEYWORDS}}"
+    "cloudflare",
+    "session",
+    "durable-object",
+    "do"
   ],
   "author": {
     "name": "Tobias Davis",
@@ -34,5 +29,16 @@
   "bugs": {
     "url": "https://github.com/saibotsivad/cloudflare-durable-object-sessions/issues"
   },
-  "homepage": "https://github.com/saibotsivad/cloudflare-durable-object-sessions"
+  "homepage": "https://github.com/saibotsivad/cloudflare-durable-object-sessions",
+  "dependencies": {
+    "@cloudflare/wrangler": "^1.19.7",
+    "@rollup/plugin-commonjs": "^21.0.1",
+    "@rollup/plugin-node-resolve": "^13.1.3",
+    "@rollup/plugin-replace": "^3.0.1",
+    "rollup": "^2.64.0",
+    "rollup-plugin-svelte": "^7.1.0",
+    "svelte": "^3.46.2",
+    "trouter": "^3.2.0",
+    "worktop": "^0.7.3"
+  }
 }
