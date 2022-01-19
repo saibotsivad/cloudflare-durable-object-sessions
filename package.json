@@ -6,7 +6,8 @@
   "main": "dist/index.mjs",
   "scripts": {
     "build": "rollup -c",
-    "deploy": "npm run build && wrangler publish"
+    "deploy": "npm run build && wrangler publish",
+    "remove": "wrangler publish --delete-class User"
   },
   "repository": {
     "type": "git",

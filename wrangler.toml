@@ -18,13 +18,15 @@ main = "./index.mjs"
 # I'm not sure why, but the Rollup build had to go in `dist` and also needs to use `.mjs` or
 # when you try to deploy it complains about not understanding the `export` keyword.
 
-[durable_objects]
-bindings = [
-  # This is how you bind exported classes aka `export { User } from './objects/user.js'`
-  # to something accessible on the `env`. Presumably you could end up with KV/DO naming
-  # collisions, if you aren't careful?
-  { name = "USER", class_name = "User" }
-]
+#[durable_objects]
+#bindings = [
+#  # This is how you bind exported classes aka `export { User } from './objects/user.js'`
+#  # to something accessible on the `env`. Presumably you could end up with KV/DO naming
+#  # collisions, if you aren't careful?
+#  { name = "USER", class_name = "User" }
+#]
+
+# NOTE: You might not need these if you're deploying fresh?
 
 [[migrations]]
 tag = "v1" # Must be unique for each entry, but other than that it doesn't seem to matter.
@@ -33,3 +35,11 @@ new_classes = [ "Counter" ] # This was based on the CF DO demo, which started wi
 [[migrations]]
 tag = "v2"
 renamed_classes = [{from = "Counter", to = "User" }]
+
+# At the end, if you want to delete the whole stack, you'll need to uncomment this
+# migration and delete the appropiate Durable Object class. Then you can go into
+# the Worker page (in the Cloudflare dashboard), into "Manage Services", and there
+# delete all the stuff created here.
+#[[migrations]]
+#tag = "v3"
+#deleted_classes = ["User"]
