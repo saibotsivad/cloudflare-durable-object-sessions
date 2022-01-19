@@ -2,6 +2,7 @@
 	import Navbar from '../components/Navbar.svelte'
 	export let message
 	export let user
+	export let session
 	export let sessions
 	let password
 </script>
@@ -32,9 +33,14 @@
 {#if sessions}
 	<h2>Sessions {typeof sessions}</h2>
 	<ul>
-	{#each Object.keys(sessions) as sessionId}
+	{#each Object.keys(sessions) as key}
 		<li>
-			{sessions[sessionId].id}
+			{sessions[key].id}
+			{#if session?.id === sessions[key].id}
+				(this is you)
+			{:else}
+				<a href="/session/remove/{sessions[key].id}">(click to delete)</a>
+			{/if}
 		</li>
 	{/each}
 	</ul>

@@ -112,7 +112,11 @@ router
 				? new Response('Redirecting...', {
 					status: 303,
 					headers: {
-						'Set-Cookie': stringifyCookie({ id: session.id, secret: session.secret, username: form.username }),
+						'Set-Cookie': stringifyCookie({
+							id: session.id,
+							secret: session.secret,
+							username: form.username,
+						}),
 						Location: `${url.origin}/profile`,
 					},
 				})
@@ -120,9 +124,13 @@ router
 		}
 		return Response.redirect(`${url.origin}/login?message=${encodeURIComponent('Bad username or password. ')}`)
 	})
-	.get('/profile', async ({ url, durableFetch, user }) => {
+	.get('/profile', async ({ url, durableFetch, user, session }) => {
 		return user
-			? htmlResponse(200, Profile.render({ user, sessions: await durableFetch(user.username, 'sessions', 'list') }))
+			? htmlResponse(200, Profile.render({
+				user,
+				session,
+				sessions: await durableFetch(user.username, 'sessions', 'list'),
+			}))
 			: Response.redirect(`${url.origin}/login`)
 	})
 	.post('/profile', async ({ url, durableFetch, user, form }) => {
@@ -153,6 +161,10 @@ router
 		})
 		return htmlResponse(200, LoggedOut.render(), { 'Set-Cookie': stringifyCookie({}) })
 	})
+	.get('/session/remove/:sessionId', async ({ url, user, durableFetch, sessionId }) => {
+		if (user) await durableFetch(user.username, 'session', 'del', { id: sessionId })
+		return Response.redirect(`${url.origin}/profile?message=${encodeURIComponent('Deleted session: ' + sessionId)}`)
+	})
 
 async function handleRequest(request, env) {
 	const url = new URL(request.url)
@@ -181,6 +193,7 @@ async function handleRequest(request, env) {
 			session,
 			form,
 			durableFetch,
+			...route.params,
 		})
 	} else {
 		return new Response('Not found', { status: 404 })
