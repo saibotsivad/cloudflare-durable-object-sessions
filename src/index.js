@@ -8,8 +8,6 @@ import * as Base64 from 'worktop/base64'
 import { ulid, uid } from 'worktop/utils'
 import Trouter from 'trouter'
 
-export { User } from './objects/user.js'
-
 const html = ({ head, html, css }) => `<!DOCTYPE html>
 <head lang="en-US">
 	<meta name="viewport" content="width=device-width" />
@@ -43,16 +41,6 @@ const readForm = async request => {
 		body[entry[0]] = entry[1]
 	}
 	return body
-}
-
-export default {
-	async fetch(request, env) {
-		try {
-			return await handleRequest(request, env)
-		} catch (e) {
-			return new Response(e.message)
-		}
-	},
 }
 
 const parseCookie = request => {
@@ -170,7 +158,37 @@ async function handleRequest(request, env) {
 	const url = new URL(request.url)
 	const cookie = parseCookie(request)
 
+	// The `env.USER` is how you bind an exported class name, in this case
+	// the `export { User }` to a Worker instantiation environment. Look at
+	// the `wrangler.toml` file for more details to see how `User` maps to `USER`.
 	const durableFetch = makeDurableFetch(url.origin + '/DO', env.USER)
+
+	/*
+	This `durableFetch` is wrapping up this boilerplate:
+
+	// This is how you instantiate a Durable Object:
+	const username = '' // from a form, session cookie, auth token, etc.
+	const durableId = env.USER.idFromName(username)
+	const durableInstance = env.USER.get(durableId)
+
+	// To interact with it, you use `instance.fetch` which behaves the
+	// same as the `globalThis.fetch`. The `url` doesn't actually matter,
+	// but if you are using a path router in the Durable Object (I'm not
+	// in this demo) you'll of course need to set it here.
+	//
+	// Note that the URL used here will show up in the Worker logs, so
+	// make sure to be careful with privacy concerns.
+	const response = durableInstance.fetch(url.origin + '/', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify([ command, action, params ]),
+	})
+
+	// The `response` is a normal `fetch` response, so you can just
+	// grab the JSON, if that's what came back:
+	const data = await response.json()
+
+	 */
 
 	let user
 	let session
@@ -199,3 +217,15 @@ async function handleRequest(request, env) {
 		return new Response('Not found', { status: 404 })
 	}
 }
+
+export default {
+	async fetch(request, env) {
+		try {
+			return await handleRequest(request, env)
+		} catch (e) {
+			return new Response(e.message)
+		}
+	},
+}
+
+export { User } from './objects/user.js'

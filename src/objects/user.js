@@ -33,6 +33,15 @@ export class User {
 
 	async fetch(request) {
 		const body = request.method === 'POST' && request.headers.get('content-type')?.includes('application/json') && await request.json()
+		/*
+		The body here is expected to look like:
+
+			[
+				"profile",
+				"put",
+				{ "username": "saibotsivad", ...etc }
+			]
+		 */
 		let command = commands[body?.[0]]?.[body?.[1]]
 		if (command) {
 			const result = await command(this.state, body[2])
@@ -46,4 +55,18 @@ export class User {
 			headers: { 'Content-Type': 'application/json' },
 		})
 	}
+
+	// another alternate approach would be maybe something like
+	getProfile() {
+		return this.state.storage.get('profile')
+	}
+	/*
+	Then you could do something like
+
+	async fetch(request) {
+		const url = new URL(request.url)
+		const [ , methodName ] = url.pathname.split('/)
+		this[methodName](await request.json())
+	}
+	 */
 }

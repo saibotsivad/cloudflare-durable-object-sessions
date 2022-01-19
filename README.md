@@ -1,17 +1,15 @@
-# `[WIP]` cloudflare-durable-object-sessions
+# `[DEMO]` cloudflare-durable-object-sessions
 
-Cloudflare Workers and Durable Objects as an approach to user and session management.
+Demo of Cloudflare Workers and Durable Objects as an approach to user and session management.
 
-## Example
+This was just me, trying to understand how Durable Objects work, and how I might use them for authentication and session management.
 
-Describe general use example
+Docs of interest:
 
-## api: `function({ param1: Type, param2: Type })`
-
-Describe api
+- Learning the basics: https://developers.cloudflare.com/workers/learning/using-durable-objects
+- The runtime APIs: https://developers.cloudflare.com/workers/runtime-apis/durable-objects
+- Using the CF API: https://api.cloudflare.com/#durable-objects-namespace-list-objects
 
 ## License
 
 Published and released under the [Very Open License](http://veryopenlicense.com).
-
-If you need a commercial license, [contact me here](https://davistobias.com/license?software=cloudflare-durable-object-sessions).

@@ -2,6 +2,7 @@ name = "cloudflare-do-sessions"
 type = "javascript"
 workers_dev = false
 routes = [
+  # You can try using these now, but I'll probably shut them down in a few days.
   "https://sessions.davisresearchgroup.com/",
   "https://sessions.davisresearchgroup.com/*"
 ]
@@ -14,15 +15,20 @@ command = "npm install && npm run build"
 # The "modules" upload format is required for all projects that export a Durable Objects class
 format = "modules"
 main = "./index.mjs"
+# I'm not sure why, but the Rollup build had to go in `dist` and also needs to use `.mjs` or
+# when you try to deploy it complains about not understanding the `export` keyword.
 
 [durable_objects]
 bindings = [
+  # This is how you bind exported classes aka `export { User } from './objects/user.js'`
+  # to something accessible on the `env`. Presumably you could end up with KV/DO naming
+  # collisions, if you aren't careful?
   { name = "USER", class_name = "User" }
 ]
 
 [[migrations]]
-tag = "v1" # Should be unique for each entry
-new_classes = [ "Counter" ]
+tag = "v1" # Must be unique for each entry, but other than that it doesn't seem to matter.
+new_classes = [ "Counter" ] # This was based on the CF DO demo, which started with `Counter`
 
 [[migrations]]
 tag = "v2"
