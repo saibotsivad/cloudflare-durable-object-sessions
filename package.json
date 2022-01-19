@@ -6,9 +6,7 @@
   "main": "dist/index.mjs",
   "scripts": {
     "build": "rollup -c",
-    "deploy": "npm run build && wrangler publish",
-    "dev": "rollup -c -w",
-    "start": "miniflare build.js --debug --watch --port 3000 --kv DCC_SERMONS --kv-persist ./data/"
+    "deploy": "npm run build && wrangler publish"
   },
   "repository": {
     "type": "git",
