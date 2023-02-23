@@ -64,17 +64,17 @@ const stringifyCookie = params => Cookie.stringify(
 	// TODO httpOnly etc
 )
 
-const makeDurableFetch = (url, durableClass) => async (id, command, action, params) => {
+const makeDurableFetch = (url, durableClass) => async (id, command, params) => {
 	const durable = durableClass.get(durableClass.idFromName(id))
 	const response = await durable.fetch(url, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify([ command, action, params ]),
+		body: JSON.stringify([ command, params ]),
 	})
 	try {
 		return (await response.json()).data
 	} catch (error) {
-		console.log('error parsing json response', { id, command, action, params })
+		console.log('error parsing json response', { id, command, params })
 		throw error
 	}
 }
@@ -89,10 +89,10 @@ router
 	})
 	.post('/login', async ({ url, form, durableFetch }) => {
 		if (!form.username || !form.password) return Response.redirect(`${url.origin}/login?message=${encodeURIComponent('No username/password specified.')}`)
-		const loginUser = await durableFetch(form.username, 'profile', 'get', undefined)
+		const loginUser = await durableFetch(form.username, 'getProfile', undefined)
 		// TODO use hash instead
 		if (loginUser && loginUser.password === form.password) {
-			const session = await durableFetch(form.username, 'session', 'put', {
+			const session = await durableFetch(form.username, 'putSession', {
 				id: ulid(),
 				secret: uid(32),
 			})
@@ -117,7 +117,7 @@ router
 			? htmlResponse(200, Profile.render({
 				user,
 				session,
-				sessions: await durableFetch(user.username, 'sessions', 'list'),
+				sessions: await durableFetch(user.username, 'listSessions'),
 			}))
 			: Response.redirect(`${url.origin}/login`)
 	})
@@ -125,7 +125,7 @@ router
 		if (!user) return Response.redirect(`${url.origin}/login`)
 		if (!form?.password) return Response.redirect(`${url.origin}/profile?message=${encodeURIComponent('No password provided.')}`)
 		user.password = form.password // TODO hash+salt before saving
-		await durableFetch(user.username, 'profile', 'put', user)
+		await durableFetch(user.username, 'putProfile', user)
 		return Response.redirect(`${url.origin}/profile?message=${encodeURIComponent('Password has been changed.')}`)
 	})
 	.get('/new_account', async ({ url, user }) => {
@@ -134,23 +134,23 @@ router
 	})
 	.post('/new_account', async ({ form, url, durableFetch }) => {
 		if (!form.username || !form.password) return Response.redirect(`${url.origin}/new_account?message=${encodeURIComponent('No username/password specified.')}`)
-		const existingUser = await durableFetch(form.username, 'profile', 'get')
+		const existingUser = await durableFetch(form.username, 'getProfile')
 		if (existingUser) return Response.redirect(`${url.origin}/new_account?message=${encodeURIComponent('Username is already taken.')}`)
-		await durableFetch(form.username, 'profile', 'put', {
+		await durableFetch(form.username, 'putProfile', {
 			username: form.username,
 			password: form.password, // TODO hash+salt before saving
 		})
 		return Response.redirect(`${url.origin}/login?message=${encodeURIComponent('User created, go ahead and log in.')}`)
 	})
 	.get('/logout', async ({ user, session, durableFetch }) => {
-		if (user && session) await durableFetch(user.username, 'session', 'put', {
+		if (user && session) await durableFetch(user.username, 'putSession', {
 			id: session.id,
 			expired: Date.now(),
 		})
 		return htmlResponse(200, LoggedOut.render(), { 'Set-Cookie': stringifyCookie({}) })
 	})
 	.get('/session/remove/:sessionId', async ({ url, user, durableFetch, sessionId }) => {
-		if (user) await durableFetch(user.username, 'session', 'del', { id: sessionId })
+		if (user) await durableFetch(user.username, 'delSession', { id: sessionId })
 		return Response.redirect(`${url.origin}/profile?message=${encodeURIComponent('Deleted session: ' + sessionId)}`)
 	})
 
@@ -193,9 +193,9 @@ async function handleRequest(request, env) {
 	let user
 	let session
 	if (cookie && cookie.id && cookie.username && cookie.secret) {
-		session = await durableFetch(cookie.username, 'session', 'get', { id: cookie.id })
+		session = await durableFetch(cookie.username, 'getSession', { id: cookie.id })
 		if (session && session.secret && session.secret === cookie.secret) {
-			user = await durableFetch(cookie.username, 'profile', 'get')
+			user = await durableFetch(cookie.username, 'getProfile')
 		}
 	}
 
